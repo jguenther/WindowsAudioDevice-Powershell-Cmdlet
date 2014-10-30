@@ -119,6 +119,40 @@ namespace AudioDeviceCmdlets
         }
     }
 
+
+    [Cmdlet(VerbsCommon.Set, "ToggleDefaultAudioDevice")]
+    public class ToggleDefaultAudioDevice : Cmdlet
+    {
+        public int Index
+        {
+            get { return index; }
+            set { index = value; }
+        }
+        private int index;
+        
+        protected override void ProcessRecord()
+        {
+            MMDeviceEnumerator DevEnum = new MMDeviceEnumerator();
+            MMDeviceCollection devices = DevEnum.EnumerateAudioEndPoints(EDataFlow.eRender, EDeviceState.DEVICE_STATE_ACTIVE);
+            MMDevice DefaultDevice = DevEnum.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia);
+
+            PolicyConfigClient client = new PolicyConfigClient();
+
+            for (int i = 0; i < devices.Count; i++)
+            {
+                if (devices[i].ID != DefaultDevice.ID)
+                {
+                    // new device = last found device that isn't already default
+                    index = i;
+                }
+            }
+
+            client.SetDefaultEndpoint(devices[index].ID, ERole.eMultimedia);
+
+            WriteObject(new AudioDevice(index, devices[index]));
+        }
+    }
+
     [Cmdlet(VerbsCommon.Get, "AudioDeviceList")]
     public class GetAudioDeviceList : Cmdlet
     {
