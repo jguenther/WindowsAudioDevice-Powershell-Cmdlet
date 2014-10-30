@@ -112,7 +112,7 @@ namespace AudioDeviceCmdlets
                 }
             }
 
-            client.SetDefaultEndpoint(devices[index].ID, ERole.eCommunications);
+            //client.SetDefaultEndpoint(devices[index].ID, ERole.eCommunications);
             client.SetDefaultEndpoint(devices[index].ID, ERole.eMultimedia);
 
             WriteObject(new AudioDevice(index, devices[index]));
